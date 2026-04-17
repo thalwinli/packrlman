@@ -43,6 +43,7 @@ def main():
         big_font = pygame.font.SysFont(None, 48)
         last_tick = pygame.time.get_ticks()
         ep_reward = 0.0
+        dirty = True
 
         running = True
         while running:
@@ -57,6 +58,7 @@ def main():
                         state = game.get_state()
                         ep_reward = 0.0
                         last_tick = pygame.time.get_ticks()
+                        dirty = True
 
             if not running:
                 break
@@ -69,6 +71,11 @@ def main():
                 ep_reward += reward
                 state = game.get_state()
                 last_tick = now
+                dirty = True
+
+            if not dirty:
+                clock.tick(FPS)
+                continue
 
             screen.fill(BG)
             for (wx, wy) in state["walls"]:
@@ -96,6 +103,7 @@ def main():
                 screen.blit(text, text.get_rect(center=(window_w // 2, window_h // 2)))
 
             pygame.display.flip()
+            dirty = False
             clock.tick(FPS)
     finally:
         pygame.quit()

@@ -51,6 +51,7 @@ def run() -> None:
 
         pending_action = None
         last_tick = pygame.time.get_ticks()
+        dirty = True
 
         key_to_action = {
             pygame.K_UP: Action.UP,
@@ -76,6 +77,7 @@ def run() -> None:
                             state = game.get_state()
                             pending_action = None
                             last_tick = pygame.time.get_ticks()
+                            dirty = True
 
             if not running:
                 break
@@ -88,6 +90,11 @@ def run() -> None:
                 state = game.get_state()
                 pending_action = None
                 last_tick = now
+                dirty = True
+
+            if not dirty:
+                clock.tick(FPS)
+                continue
 
             # --- Render ---
             screen.fill(BG)
@@ -146,6 +153,7 @@ def run() -> None:
                 screen.blit(text_surface, rect)
 
             pygame.display.flip()
+            dirty = False
             clock.tick(FPS)
     finally:
         pygame.quit()
