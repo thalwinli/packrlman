@@ -1,0 +1,58 @@
+orchestrator:
+  started_phase: phase-0
+  completed_phases: []
+  failed_phases: []
+  auto_fix_attempts: {}
+  options:
+    visual_enabled: null
+  created: 2026-04-17
+  updated: 2026-04-17
+  task_path: .maister/tasks/product-design/2026-04-17-basic-pacman-game
+  task_ids: {}
+
+task:
+  title: "Basic Pacman Game in Python (pygame)"
+  description: "Simple Pacman-like game: randomly generated map with obstacles and dots to collect, ghosts that move randomly, arrow-key player movement, lose on ghost touch, win on all dots collected."
+  status: completed
+  tags: [game, python, pygame, greenfield]
+  priority: null
+
+design_context:
+  design_characteristics:
+    is_greenfield: true
+    is_enhancement: false
+    is_ui_focused: true
+    is_backend: false
+    is_complex: false
+    is_simple: true
+  complexity_level: "simple"
+  collected_urls: []
+  research_topics: []
+  user_files_list: []
+  key_non_functional_requirement: "Expose game state (player, ghosts, dots, score, status) programmatically for future Deep Q-Learning training. Training itself out of scope."
+  refinement_iterations:
+    phase_2: 0
+    phase_3: 0
+    phase_5: 0
+    phase_6_sections: {}
+    phase_7: 0
+  visual_companion:
+    available: null
+    port: null
+    pid: null
+    fallback_to_ascii: false
+  research_reference:
+    path: null
+    research_question: null
+  phase_summaries:
+    context_synthesis: {summary: null, sources_count: 0}
+    problem_exploration: {problem_statement: null, constraints: [], success_criteria: []}
+    persona_exploration: {personas: [], user_journeys: []}
+    idea_generation: {alternatives_count: 0, summary: null}
+    idea_convergence: {selected_approach: null, trade_offs_accepted: [], key_decisions: []}
+    feature_specification: {spec_sections: {}, sections_count: 0}
+    visual_prototyping: {mockup_references: [], summary: null}
+    review_handoff: {brief_layers: [], summary: null}
+
+options:
+  visual_enabled: null

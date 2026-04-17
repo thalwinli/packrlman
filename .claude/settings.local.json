@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import pacman\")",
+      "Bash(python -c \"import pacman.types, pacman.map_gen, pacman.game\")",
+      "Bash(python -c \"import sys; 'pygame' in sys.modules and sys.exit\\(1\\); import pacman, pacman.types, pacman.map_gen, pacman.game; assert 'pygame' not in sys.modules, 'pygame leaked into core imports'; print\\('core imports pygame-free: OK'\\)\")",
+      "Bash(python -m pytest tests/test_map_gen.py -v)",
+      "Bash(pip install *)",
+      "Bash(python -m pytest tests/test_game.py -v)",
+      "Bash(python -m py_compile main.py pacman/pygame_app.py)",
+      "Bash(python -c \"import pacman.pygame_app; print\\('IMPORT_OK'\\)\")",
+      "Bash(python -m pytest tests/ -v)"
+    ]
+  }
+}
