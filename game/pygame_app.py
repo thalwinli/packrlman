@@ -13,9 +13,9 @@ FPS = 60
 HUD_PX = 32
 
 # Color constants (RGB)
-BG = (0, 0, 0)
+BG = (255, 255, 255)
 WALL = (30, 30, 200)
-DOT = (255, 255, 255)
+DOT = (0, 0, 0)
 PLAYER = (255, 230, 0)
 GHOST = (220, 50, 50)
 WIN_TEXT = (50, 220, 50)
@@ -124,7 +124,7 @@ def run() -> None:
                 screen, BG, pygame.Rect(0, hud_y, window_w, HUD_PX)
             )
             hud_text = f"Score: {state['score']}   Status: {state['status']}"
-            hud_surface = font.render(hud_text, True, (255, 255, 255))
+            hud_surface = font.render(hud_text, True, (0, 0, 0))
             screen.blit(hud_surface, (8, hud_y + (HUD_PX - hud_surface.get_height()) // 2))
 
             # --- Overlays ---
