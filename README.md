@@ -41,6 +41,7 @@ training script. Install the extra deps first:
 pip install -r requirements-rl.txt
 python -m rl.train_ppo --timesteps 500000 --n-envs 8
 python -m rl.eval --model ppo_pacman --episodes 50
+python -m rl.play --model ppo_pacman          # watch it play in the pygame window
 ```
 
 CPU is fine — at a 20×15 board the bottleneck is env stepping, not the
