@@ -61,6 +61,7 @@ class PacmanGame:
         self._dots = set(dots)
         self._player = player_pos
         self._ghosts = list(ghost_positions)
+        self._ghost_dirs = [self._pick_initial_dir(g) for g in self._ghosts]
         self._score = 0
         self._tick = 0
         self._status = Status.PLAYING
@@ -87,19 +88,30 @@ class PacmanGame:
             self._score += 1
             reward += DOT_REWARD
 
-        # 3) Ghost moves (random non-wall neighbor; stay if none)
+        # 3) Ghost moves: keep heading until blocked, then pick a passable direction
+        if len(self._ghost_dirs) != len(self._ghosts):
+            self._ghost_dirs = [self._pick_initial_dir(g) for g in self._ghosts]
         new_ghosts = []
-        for gx, gy in self._ghosts:
-            neighbors = [
-                (gx + ddx, gy + ddy)
-                for ddx, ddy in ((1, 0), (-1, 0), (0, 1), (0, -1))
-                if self._is_passable(gx + ddx, gy + ddy)
+        new_dirs = []
+        for (gx, gy), (ddx, ddy) in zip(self._ghosts, self._ghost_dirs):
+            if self._is_passable(gx + ddx, gy + ddy):
+                new_ghosts.append((gx + ddx, gy + ddy))
+                new_dirs.append((ddx, ddy))
+                continue
+            options = [
+                (odx, ody)
+                for odx, ody in ((1, 0), (-1, 0), (0, 1), (0, -1))
+                if self._is_passable(gx + odx, gy + ody)
             ]
-            if neighbors:
-                new_ghosts.append(self._rng.choice(neighbors))
+            if options:
+                nd = self._rng.choice(options)
+                new_ghosts.append((gx + nd[0], gy + nd[1]))
+                new_dirs.append(nd)
             else:
                 new_ghosts.append((gx, gy))
+                new_dirs.append((ddx, ddy))
         self._ghosts = new_ghosts
+        self._ghost_dirs = new_dirs
 
         # 4) Collision check
         done = False
@@ -151,6 +163,15 @@ class PacmanGame:
         return t
 
     # ----------------------------------------------------------------- helpers
+    def _pick_initial_dir(self, ghost_pos):
+        gx, gy = ghost_pos
+        options = [
+            (dx, dy)
+            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))
+            if self._is_passable(gx + dx, gy + dy)
+        ]
+        return self._rng.choice(options) if options else (0, 0)
+
     def _is_passable(self, x, y):
         if not (0 <= x < self._width and 0 <= y < self._height):
             return False
