@@ -32,6 +32,20 @@ python main.py
 pytest
 ```
 
+## Train an agent
+
+The game is now wrapped as a `gymnasium` env (`game/gym_env.py`) with a PPO
+training script. Install the extra deps first:
+
+```bash
+pip install -r requirements-rl.txt
+python -m rl.train_ppo --timesteps 500000 --n-envs 8
+python -m rl.eval --model ppo_pacman --episodes 50
+```
+
+CPU is fine — at a 20×15 board the bottleneck is env stepping, not the
+network. TensorBoard logs land in `./tb/`.
+
 ## Vibe
 
 If you find a bug, it's a feature. If you find a feature, it's probably a bug. Contributions welcome but emotionally optional.

@@ -19,3 +19,9 @@ env/
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# RL training artifacts
+tb/
+*.zip
+ppo_pacman*
+runs/
