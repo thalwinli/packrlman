@@ -24,6 +24,8 @@ DOT_REWARD = 1.0
 WIN_BONUS = 10.0
 LOSS_PENALTY = 10.0
 
+GHOST_TURN_PROB = 0.2
+
 
 class PacmanGame:
     """Headless Pacman game with atomic step semantics.
@@ -94,22 +96,22 @@ class PacmanGame:
         new_ghosts = []
         new_dirs = []
         for (gx, gy), (ddx, ddy) in zip(self._ghosts, self._ghost_dirs):
-            if self._is_passable(gx + ddx, gy + ddy):
-                new_ghosts.append((gx + ddx, gy + ddy))
-                new_dirs.append((ddx, ddy))
-                continue
             options = [
                 (odx, ody)
                 for odx, ody in ((1, 0), (-1, 0), (0, 1), (0, -1))
                 if self._is_passable(gx + odx, gy + ody)
             ]
-            if options:
+            current_ok = self._is_passable(gx + ddx, gy + ddy)
+            if current_ok and self._rng.random() >= GHOST_TURN_PROB:
+                nd = (ddx, ddy)
+            elif options:
                 nd = self._rng.choice(options)
-                new_ghosts.append((gx + nd[0], gy + nd[1]))
-                new_dirs.append(nd)
             else:
                 new_ghosts.append((gx, gy))
                 new_dirs.append((ddx, ddy))
+                continue
+            new_ghosts.append((gx + nd[0], gy + nd[1]))
+            new_dirs.append(nd)
         self._ghosts = new_ghosts
         self._ghost_dirs = new_dirs
 
