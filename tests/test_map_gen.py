@@ -2,7 +2,13 @@
 import random
 from collections import deque
 
-from game.map_gen import generate_map, MIN_SPAWN_DIST, _manhattan
+from game.map_gen import (
+    generate_map,
+    MIN_SPAWN_DIST,
+    MIN_SPAWN_DIST_FLOOR,
+    _bfs_distances,
+    _manhattan,
+)
 
 
 def _bfs_reachable(start, walls, width, height):
@@ -50,16 +56,18 @@ def test_all_dots_reachable_from_player():
 
 def test_ghost_min_spawn_distance():
     rng = random.Random(7)
+    width, height = 20, 15
     walls, dots, player, ghosts = generate_map(
-        width=20, height=15, wall_density=0.25, num_ghosts=4, rng=rng
+        width=width, height=height, wall_density=0.25, num_ghosts=4, rng=rng
     )
+    dist = _bfs_distances(player, walls, width, height)
     for g in ghosts:
-        d = _manhattan(player, g)
-        # Tolerate fallback to >= 2 on dense maps
-        assert d >= 2, f"Ghost at {g} too close to player {player}: dist={d}"
-    # On a moderate density map with default params, at least one should meet MIN_SPAWN_DIST
-    # (sanity: not all ghosts degraded to fallback in typical cases)
-    assert any(_manhattan(player, g) >= MIN_SPAWN_DIST for g in ghosts) or len(ghosts) == 4
+        d = dist.get(g)
+        assert d is not None, f"Ghost at {g} not reachable from player {player}"
+        assert d >= MIN_SPAWN_DIST_FLOOR, (
+            f"Ghost at {g} too close to player {player}: path_dist={d} "
+            f"< floor={MIN_SPAWN_DIST_FLOOR}"
+        )
 
 
 def test_ghost_count_matches_request():
