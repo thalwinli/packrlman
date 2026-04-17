@@ -5,7 +5,8 @@ Generates maze layouts as pure data structures. MUST NOT import pygame.
 from collections import deque
 from random import Random
 
-MIN_SPAWN_DIST = 5
+MIN_SPAWN_DIST = 8
+MIN_SPAWN_DIST_FLOOR = 5
 MAX_REGEN_ATTEMPTS = 20
 
 
@@ -13,23 +14,29 @@ def _manhattan(a, b):
     return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
 
-def _bfs_reachable(start, walls, width, height):
-    """Return set of cells reachable from start over non-wall 4-connected neighbors."""
-    seen = {start}
+def _bfs_distances(start, walls, width, height):
+    """Return dict of reachable cell -> path distance (4-connected, walls blocking)."""
+    dist = {start: 0}
     q = deque([start])
     while q:
         x, y = q.popleft()
+        d = dist[(x, y)]
         for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
             nx, ny = x + dx, y + dy
             if (
                 0 <= nx < width
                 and 0 <= ny < height
                 and (nx, ny) not in walls
-                and (nx, ny) not in seen
+                and (nx, ny) not in dist
             ):
-                seen.add((nx, ny))
+                dist[(nx, ny)] = d + 1
                 q.append((nx, ny))
-    return seen
+    return dist
+
+
+def _bfs_reachable(start, walls, width, height):
+    """Return set of cells reachable from start (wraps _bfs_distances for compat)."""
+    return set(_bfs_distances(start, walls, width, height).keys())
 
 
 def _attempt_generate(width, height, wall_density, num_ghosts, rng):
@@ -62,22 +69,19 @@ def _attempt_generate(width, height, wall_density, num_ghosts, rng):
     player_pos = rng.choice(empties)
     remaining = [c for c in empties if c != player_pos]
 
-    # Pick ghosts with Manhattan distance >= MIN_SPAWN_DIST, degrading down to 2
+    # BFS path distances from player; only reachable cells are candidates.
+    # Using path distance (not Manhattan) keeps ghosts genuinely far through the maze.
+    dist_from_player = _bfs_distances(player_pos, walls, width, height)
+    reachable_pool = [c for c in remaining if c in dist_from_player]
+
     ghost_positions = []
     threshold = MIN_SPAWN_DIST
-    pool = list(remaining)
-    while len(ghost_positions) < num_ghosts and threshold >= 2:
-        candidates = [c for c in pool if _manhattan(player_pos, c) >= threshold]
-        if len(candidates) >= (num_ghosts - len(ghost_positions)):
-            # Pick needed number from candidates
-            needed = num_ghosts - len(ghost_positions)
-            picks = rng.sample(candidates, needed)
-            ghost_positions.extend(picks)
-            for p in picks:
-                pool.remove(p)
+    while threshold >= MIN_SPAWN_DIST_FLOOR:
+        candidates = [c for c in reachable_pool if dist_from_player[c] >= threshold]
+        if len(candidates) >= num_ghosts:
+            ghost_positions = rng.sample(candidates, num_ghosts)
             break
-        else:
-            threshold -= 1
+        threshold -= 1
 
     if len(ghost_positions) < num_ghosts:
         return None
