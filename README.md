@@ -2,7 +2,11 @@
 
 A Pacman. In Python. Because why not.
 
+![gameplay](docs/playing.png)
+
 This is a **funny little vibe-coding project** — the kind of thing that starts with "I wonder if..." at 11pm and ends with a committed repo. No deadlines, no stakeholders, no JIRA. Just dots, ghosts, and a yellow circle that dies a lot.
+
+The entire codebase was developed with [Claude Opus 4.7](https://www.anthropic.com/claude) via Claude Code — pair-programming with an LLM, one commit at a time.
 
 ## What it is
 
