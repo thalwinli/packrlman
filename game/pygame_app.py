@@ -85,7 +85,15 @@ def run() -> None:
             # --- Tick timer ---
             now = pygame.time.get_ticks()
             if state["status"] == "playing" and now - last_tick >= TICK_MS:
-                action = pending_action if pending_action is not None else Action.NOOP
+                if pending_action is not None:
+                    action = pending_action
+                else:
+                    held = pygame.key.get_pressed()
+                    action = Action.NOOP
+                    for key, held_action in key_to_action.items():
+                        if held[key]:
+                            action = held_action
+                            break
                 game.step(action)
                 state = game.get_state()
                 pending_action = None
