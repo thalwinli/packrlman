@@ -20,7 +20,7 @@ def main():
     parser.add_argument("--deterministic", action="store_true")
     args = parser.parse_args()
 
-    model = PPO.load(args.model)
+    model = PPO.load(args.model, device="cpu")
     returns = []
     wins = 0
     for ep in range(args.episodes):

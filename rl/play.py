@@ -26,7 +26,7 @@ def main():
     parser.add_argument("--seed", type=int, default=None)
     args = parser.parse_args()
 
-    model = PPO.load(args.model)
+    model = PPO.load(args.model, device="cpu")
 
     pygame.init()
     try:
