@@ -51,6 +51,26 @@ python -m rl.play --model ppo_pacman          # watch it play in the pygame wind
 CPU is fine — at a 20×15 board the bottleneck is env stepping, not the
 network. TensorBoard logs land in `./tb/`.
 
+## Pretrained agents
+
+Don't feel like waiting for millions of training steps? Grab a pretrained
+checkpoint from the [v0.1.0 release](https://github.com/thalwinli/packrlman/releases/tag/v0.1.0):
+
+| Model | Training budget |
+|-------|-----------------|
+| `ppo_pacman_1m.zip` | 1M steps — basic dot-collection |
+| `ppo_pacman_3m.zip` | 3M steps — still shaky, but the best of what we have so far (work in progress) |
+| `ppo_pacman_10m.zip` | 10M steps — not dramatically better than 3M yet, we're still tuning |
+
+```bash
+gh release download v0.1.0 -p 'ppo_pacman_*.zip'
+python -m rl.play --model ppo_pacman_10m                       # watch it play
+python -m rl.eval --model ppo_pacman_10m --episodes 50         # score it over 50 episodes
+python -m rl.train_ppo --resume ppo_pacman_10m.zip --timesteps 2000000  # keep training
+```
+
+Strip the `.zip` when passing to `--model`; Stable-Baselines3 adds it back.
+
 ## Vibe
 
 If you find a bug, it's a feature. If you find a feature, it's probably a bug. Contributions welcome but emotionally optional.
