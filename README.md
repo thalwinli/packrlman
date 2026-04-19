@@ -71,6 +71,14 @@ python -m rl.train_ppo --resume ppo_pacman_10m.zip --timesteps 2000000  # keep t
 
 Strip the `.zip` when passing to `--model`; Stable-Baselines3 adds it back.
 
+To keep the original checkpoint and save the continued run under a new name, pass `--save`:
+
+```bash
+python -m rl.train_ppo --resume ppo_pacman_10m.zip --timesteps 10000000 --save ppo_pacman_20m
+```
+
+This loads the 10M checkpoint, trains for another 10M steps, and writes `ppo_pacman_20m.zip` without touching the original.
+
 ## Vibe
 
 If you find a bug, it's a feature. If you find a feature, it's probably a bug. Contributions welcome but emotionally optional.
