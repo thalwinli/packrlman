@@ -27,13 +27,13 @@ def main():
         env = PacmanEnv(seed=args.seed + ep)
         obs, _ = env.reset()
         ep_ret, done = 0.0, False
+        info = {}
         while not done:
             action, _ = model.predict(obs, deterministic=args.deterministic)
-            obs, r, done, _, _ = env.step(int(action))
+            obs, r, done, _, info = env.step(int(action))
             ep_ret += r
         returns.append(ep_ret)
-        status = env._game.get_state()["status"]
-        if status == "won":
+        if info.get("status") == "won":
             wins += 1
 
     returns = np.array(returns)

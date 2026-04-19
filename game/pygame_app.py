@@ -22,6 +22,81 @@ WIN_TEXT = (50, 220, 50)
 LOSE_TEXT = (220, 50, 50)
 
 
+def draw_state(
+    screen,
+    state,
+    *,
+    font,
+    big_font,
+    hud_text: str,
+    win_msg: str = "YOU WIN -- press R",
+    lose_msg: str = "GAME OVER -- press R",
+) -> None:
+    """Render one full frame: board, HUD, and win/lose overlay.
+
+    Shared by the human-play app (`run()`) and `rl.play`.
+    """
+    import pygame
+
+    width = state["width"]
+    height = state["height"]
+    window_w = width * CELL_PX
+    window_h = height * CELL_PX + HUD_PX
+
+    screen.fill(BG)
+
+    for (wx, wy) in state["walls"]:
+        pygame.draw.rect(
+            screen,
+            WALL,
+            pygame.Rect(wx * CELL_PX, wy * CELL_PX, CELL_PX, CELL_PX),
+        )
+
+    for (dx, dy) in state["dots"]:
+        pygame.draw.circle(
+            screen,
+            DOT,
+            (dx * CELL_PX + CELL_PX // 2, dy * CELL_PX + CELL_PX // 2),
+            3,
+        )
+
+    px, py = state["player"]
+    pygame.draw.circle(
+        screen,
+        PLAYER,
+        (px * CELL_PX + CELL_PX // 2, py * CELL_PX + CELL_PX // 2),
+        CELL_PX // 2 - 2,
+    )
+
+    for (gx, gy) in state["ghosts"]:
+        pygame.draw.circle(
+            screen,
+            GHOST,
+            (gx * CELL_PX + CELL_PX // 2, gy * CELL_PX + CELL_PX // 2),
+            CELL_PX // 2 - 3,
+        )
+
+    hud_y = height * CELL_PX
+    pygame.draw.rect(screen, BG, pygame.Rect(0, hud_y, window_w, HUD_PX))
+    hud_surface = font.render(hud_text, True, (0, 0, 0))
+    screen.blit(hud_surface, (8, hud_y + (HUD_PX - hud_surface.get_height()) // 2))
+
+    if state["status"] in ("won", "lost"):
+        overlay = pygame.Surface((window_w, window_h), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 160))
+        screen.blit(overlay, (0, 0))
+
+        if state["status"] == "won":
+            msg, color = win_msg, WIN_TEXT
+        else:
+            msg, color = lose_msg, LOSE_TEXT
+        text_surface = big_font.render(msg, True, color)
+        screen.blit(
+            text_surface,
+            text_surface.get_rect(center=(window_w // 2, window_h // 2)),
+        )
+
+
 def run() -> None:
     """Launch the pygame-driven Pacman application.
 
@@ -104,62 +179,14 @@ def run() -> None:
                 clock.tick(FPS)
                 continue
 
-            # --- Render ---
-            screen.fill(BG)
-
-            # Walls
-            for (wx, wy) in state["walls"]:
-                pygame.draw.rect(
-                    screen,
-                    WALL,
-                    pygame.Rect(wx * CELL_PX, wy * CELL_PX, CELL_PX, CELL_PX),
-                )
-
-            # Dots
-            for (dx, dy) in state["dots"]:
-                cx = dx * CELL_PX + CELL_PX // 2
-                cy = dy * CELL_PX + CELL_PX // 2
-                pygame.draw.circle(screen, DOT, (cx, cy), 3)
-
-            # Player
-            px, py = state["player"]
-            pcx = px * CELL_PX + CELL_PX // 2
-            pcy = py * CELL_PX + CELL_PX // 2
-            pygame.draw.circle(screen, PLAYER, (pcx, pcy), CELL_PX // 2 - 2)
-
-            # Ghosts
-            for (gx, gy) in state["ghosts"]:
-                gcx = gx * CELL_PX + CELL_PX // 2
-                gcy = gy * CELL_PX + CELL_PX // 2
-                pygame.draw.circle(screen, GHOST, (gcx, gcy), CELL_PX // 2 - 3)
-
-            # HUD bar
-            hud_y = height * CELL_PX
-            pygame.draw.rect(
-                screen, BG, pygame.Rect(0, hud_y, window_w, HUD_PX)
-            )
             hud_text = f"Score: {state['score']}   Status: {state['status']}"
-            hud_surface = font.render(hud_text, True, (0, 0, 0))
-            screen.blit(hud_surface, (8, hud_y + (HUD_PX - hud_surface.get_height()) // 2))
-
-            # --- Overlays ---
-            if state["status"] in ("won", "lost"):
-                overlay = pygame.Surface((window_w, window_h), pygame.SRCALPHA)
-                overlay.fill((0, 0, 0, 160))
-                screen.blit(overlay, (0, 0))
-
-                if state["status"] == "won":
-                    msg = "YOU WIN -- press R"
-                    color = WIN_TEXT
-                else:
-                    msg = "GAME OVER -- press R"
-                    color = LOSE_TEXT
-                text_surface = big_font.render(msg, True, color)
-                rect = text_surface.get_rect(
-                    center=(window_w // 2, window_h // 2)
-                )
-                screen.blit(text_surface, rect)
-
+            draw_state(
+                screen,
+                state,
+                font=font,
+                big_font=big_font,
+                hud_text=hud_text,
+            )
             pygame.display.flip()
             dirty = False
             clock.tick(FPS)
