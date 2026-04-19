@@ -7,7 +7,6 @@ from game.map_gen import (
     MIN_SPAWN_DIST,
     MIN_SPAWN_DIST_FLOOR,
     _bfs_distances,
-    _manhattan,
 )
 
 

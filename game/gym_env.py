@@ -54,4 +54,5 @@ class PacmanEnv(gym.Env):
 
     def step(self, action: int):
         _, reward, done = self._game.step(Action(int(action)))
-        return self._game.to_tensor(), float(reward), bool(done), False, {}
+        info = {"status": self._game.get_state()["status"]}
+        return self._game.to_tensor(), float(reward), bool(done), False, info

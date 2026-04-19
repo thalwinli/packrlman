@@ -14,10 +14,7 @@ def main():
 
     from game.core import PacmanGame
     from game.types import Action
-    from game.pygame_app import (
-        BG, WALL, DOT, PLAYER, GHOST, WIN_TEXT, LOSE_TEXT,
-        CELL_PX, FPS, HUD_PX,
-    )
+    from game.pygame_app import CELL_PX, FPS, HUD_PX, draw_state
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", type=str, default="ppo_pacman")
@@ -77,31 +74,16 @@ def main():
                 clock.tick(FPS)
                 continue
 
-            screen.fill(BG)
-            for (wx, wy) in state["walls"]:
-                pygame.draw.rect(screen, WALL, pygame.Rect(wx * CELL_PX, wy * CELL_PX, CELL_PX, CELL_PX))
-            for (dx, dy) in state["dots"]:
-                pygame.draw.circle(screen, DOT, (dx * CELL_PX + CELL_PX // 2, dy * CELL_PX + CELL_PX // 2), 3)
-            px, py = state["player"]
-            pygame.draw.circle(screen, PLAYER, (px * CELL_PX + CELL_PX // 2, py * CELL_PX + CELL_PX // 2), CELL_PX // 2 - 2)
-            for (gx, gy) in state["ghosts"]:
-                pygame.draw.circle(screen, GHOST, (gx * CELL_PX + CELL_PX // 2, gy * CELL_PX + CELL_PX // 2), CELL_PX // 2 - 3)
-
-            hud_y = height * CELL_PX
-            pygame.draw.rect(screen, BG, pygame.Rect(0, hud_y, window_w, HUD_PX))
             hud = f"Score: {state['score']}  Return: {ep_reward:+.2f}  Status: {state['status']}  (R=reset, Esc=quit)"
-            surf = font.render(hud, True, (0, 0, 0))
-            screen.blit(surf, (8, hud_y + (HUD_PX - surf.get_height()) // 2))
-
-            if state["status"] in ("won", "lost"):
-                overlay = pygame.Surface((window_w, window_h), pygame.SRCALPHA)
-                overlay.fill((0, 0, 0, 160))
-                screen.blit(overlay, (0, 0))
-                msg = "AGENT WINS -- press R" if state["status"] == "won" else "AGENT LOST -- press R"
-                color = WIN_TEXT if state["status"] == "won" else LOSE_TEXT
-                text = big_font.render(msg, True, color)
-                screen.blit(text, text.get_rect(center=(window_w // 2, window_h // 2)))
-
+            draw_state(
+                screen,
+                state,
+                font=font,
+                big_font=big_font,
+                hud_text=hud,
+                win_msg="AGENT WINS -- press R",
+                lose_msg="AGENT LOST -- press R",
+            )
             pygame.display.flip()
             dirty = False
             clock.tick(FPS)
